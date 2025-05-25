@@ -1,108 +1,148 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { Mic, MicOff, Volume2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface VoiceInputProps {
-  onTranscript: (text: string) => void;
-  placeholder?: string;
+  onResult: (text: string) => void;
 }
 
-export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, placeholder = "Tap microphone to start recording" }) => {
-  const [isRecording, setIsRecording] = useState(false);
+export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
+  const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const startRecording = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast({
-        title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-      setIsRecording(true);
-      setTranscript('');
-    };
-
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-
-      const fullTranscript = finalTranscript || interimTranscript;
-      setTranscript(fullTranscript);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
       
-      if (finalTranscript) {
-        onTranscript(finalTranscript);
-        stopRecording();
+      const recognition = recognitionRef.current;
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          if (result.isFinal) {
+            finalTranscript += result[0].transcript;
+          } else {
+            interimTranscript += result[0].transcript;
+          }
+        }
+
+        setTranscript(finalTranscript || interimTranscript);
+
+        if (finalTranscript) {
+          onResult(finalTranscript);
+          toast({
+            title: "Voice input captured!",
+            description: finalTranscript,
+          });
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast({
+          title: "Voice input error",
+          description: "Please try again or check your microphone permissions.",
+          variant: "destructive",
+        });
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
       }
     };
+  }, [onResult]);
 
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      toast({
-        title: "Recording Error",
-        description: "There was an error with speech recognition.",
-        variant: "destructive",
-      });
-      stopRecording();
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
-
-  const stopRecording = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      setTranscript('');
+      recognitionRef.current.start();
     }
-    setIsRecording(false);
   };
+
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  const isSupported = typeof window !== 'undefined' && 
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  if (!isSupported) {
+    return (
+      <div className="text-center py-4">
+        <Volume2 className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+        <p className="text-sm text-gray-500">
+          Voice input is not supported in this browser.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center space-y-2">
-      <Button
-        type="button"
-        variant={isRecording ? "destructive" : "outline"}
-        size="lg"
-        onClick={isRecording ? stopRecording : startRecording}
-        className="h-16 w-16 rounded-full"
-      >
-        {isRecording ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
-      </Button>
-      <p className="text-sm text-muted-foreground text-center">
-        {isRecording ? 'Recording... Speak now' : placeholder}
-      </p>
-      {transcript && (
-        <div className="mt-2 p-2 bg-muted rounded text-sm">
-          {transcript}
+    <div className="space-y-4">
+      <div className="flex justify-center">
+        <Button
+          type="button"
+          variant={isListening ? "destructive" : "default"}
+          size="lg"
+          onClick={isListening ? stopListening : startListening}
+          className="flex items-center space-x-2"
+        >
+          {isListening ? (
+            <>
+              <MicOff className="h-5 w-5" />
+              <span>Stop Listening</span>
+            </>
+          ) : (
+            <>
+              <Mic className="h-5 w-5" />
+              <span>Start Voice Input</span>
+            </>
+          )}
+        </Button>
+      </div>
+
+      {isListening && (
+        <div className="text-center">
+          <div className="inline-flex items-center space-x-2 px-3 py-2 bg-red-100 text-red-700 rounded-full">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            <span className="text-sm">Listening...</span>
+          </div>
         </div>
       )}
+
+      {transcript && (
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <p className="text-sm font-medium text-gray-700">Transcript:</p>
+          <p className="text-gray-600">{transcript}</p>
+        </div>
+      )}
+
+      <div className="text-xs text-gray-500 text-center">
+        Try saying: "Spent $25 on office supplies" or "Received $100 for consulting"
+      </div>
     </div>
   );
 };
