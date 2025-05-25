@@ -1,12 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Auth } from '@/components/Auth';
+import { Dashboard } from '@/components/Dashboard';
+import { TransactionForm } from '@/components/TransactionForm';
+import { Navigation } from '@/components/Navigation';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+  const { user, loading } = useAuth();
+  const [currentView, setCurrentView] = useState<'dashboard' | 'add-transaction'>('dashboard');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading ShopTrack...</div>
       </div>
+    );
+  }
+
+  if (!user) {
+    return <Auth />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation currentView={currentView} onViewChange={setCurrentView} />
+      
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-20 md:pb-6">
+        {currentView === 'dashboard' && <Dashboard />}
+        {currentView === 'add-transaction' && <TransactionForm />}
+      </main>
     </div>
   );
 };
