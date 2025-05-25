@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 export const Auth: React.FC = () => {
   const { signIn, signUp } = useAuth();
@@ -27,6 +27,7 @@ export const Auth: React.FC = () => {
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
+      // No manual redirect needed - AuthContext will handle this automatically
     } catch (error: any) {
       toast({
         title: "Sign In Failed",
@@ -46,8 +47,9 @@ export const Auth: React.FC = () => {
       await signUp(formData.email, formData.password, formData.name);
       toast({
         title: "Account Created!",
-        description: "Please check your email to verify your account.",
+        description: "Welcome to ShopTrack! You can now start tracking your business finances.",
       });
+      // No manual redirect needed - AuthContext will handle this automatically
     } catch (error: any) {
       toast({
         title: "Sign Up Failed",

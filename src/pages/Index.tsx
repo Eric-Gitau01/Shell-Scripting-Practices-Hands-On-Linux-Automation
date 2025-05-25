@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Auth } from '@/components/Auth';
 import { Dashboard } from '@/components/Dashboard';
@@ -10,10 +10,17 @@ const Index = () => {
   const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState<'dashboard' | 'add-transaction'>('dashboard');
 
+  // Reset view to dashboard when user changes
+  useEffect(() => {
+    if (user) {
+      setCurrentView('dashboard');
+    }
+  }, [user]);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading ShopTrack...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-lg font-medium">Loading ShopTrack...</div>
       </div>
     );
   }
