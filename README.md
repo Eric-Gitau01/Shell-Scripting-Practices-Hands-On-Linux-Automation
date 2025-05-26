@@ -15,7 +15,6 @@ Live Demo: https://shoptrack-voice-vision.lovable.app/
 
 ## Technologies Used
 
-- Next.js 14
 - Supabase (Authentication + Database)
 - Web Speech API (Voice input)
 - Tailwind CSS
@@ -75,10 +74,4 @@ Create a fullstack web application called "ShopTrack" for small business owners 
 3. Set up Supabase environment variables
 4. Run the development server: `npm run dev`
 
-## How It Addresses the Hackathon Problem
 
-ShopTrack solves the challenge of small traders who don't track their income or expenses by providing:
-- Simple, intuitive tracking tools
-- Multiple input methods (voice/photo/manual)
-- Instant financial insights
-- Offline functionality for areas with poor connectivity
