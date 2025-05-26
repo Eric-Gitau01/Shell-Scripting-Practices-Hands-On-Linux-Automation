@@ -14,7 +14,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       
@@ -87,7 +87,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onResult }) => {
   };
 
   const isSupported = typeof window !== 'undefined' && 
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+    (window.SpeechRecognition || window.webkitSpeechRecognition);
 
   if (!isSupported) {
     return (
