@@ -1,7 +1,8 @@
 # ShopTrack - Small Business Income/Expense Tracker
 
 ShopTrack is a lightweight web application designed to help small business owners easily track their income and expenses in real-time, with voice and photo input capabilities.
-
+# live demo
+Live Demo: https://shoptrack-voice-vision.lovable.app/
 ## Features
 
 - 📱 Mobile-first responsive design
