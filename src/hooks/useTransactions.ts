@@ -24,16 +24,28 @@ export function useTransactions() {
   const [loading, setLoading] = useState(true);
 
   const fetchTransactions = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
+      console.log('Fetching transactions for user:', user.id);
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
         .order('date', { ascending: false });
 
-      if (error) throw error;
-      setTransactions(data || []);
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        // If there's an auth error, still set loading to false so the UI can render
+        if (error.message.includes('JWT') || error.message.includes('auth')) {
+          console.log('Auth error, user might not be fully confirmed yet');
+        }
+      } else {
+        console.log('Transactions fetched:', data);
+        setTransactions(data || []);
+      }
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {
@@ -51,6 +63,7 @@ export function useTransactions() {
         .on('postgres_changes', 
           { event: '*', schema: 'public', table: 'transactions' },
           () => {
+            console.log('Real-time update received');
             fetchTransactions();
           }
         )

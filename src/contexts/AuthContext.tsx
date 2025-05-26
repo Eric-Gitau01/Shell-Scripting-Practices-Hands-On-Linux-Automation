@@ -28,6 +28,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -37,14 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     );
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -68,11 +68,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password,
         options: {
-          data: { name }
+          data: { name },
+          emailRedirectTo: window.location.origin
         }
       });
       if (error) throw error;
       console.log('Sign up successful:', data);
+      
+      // If the user is returned but not confirmed, still allow access
+      if (data.user && !data.session) {
+        // Create a temporary session-like state for unconfirmed users
+        setUser(data.user);
+        setLoading(false);
+      }
     } catch (error) {
       setLoading(false);
       throw error;

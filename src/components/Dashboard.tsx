@@ -2,14 +2,23 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
-import { TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, Plus } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const { transactions, loading } = useTransactions();
 
   if (loading) {
-    return <div>Loading dashboard...</div>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="text-lg font-medium">Loading your dashboard...</div>
+          <div className="text-sm text-gray-500 mt-1">Getting your financial data ready</div>
+        </div>
+      </div>
+    );
   }
 
   // Calculate totals
@@ -66,6 +75,26 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Welcome message for new users */}
+      {transactions.length === 0 && (
+        <Card className="bg-gradient-to-r from-blue-50 to-green-50 border-blue-200">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Welcome to ShopTrack, {user?.user_metadata?.name || 'there'}! 👋
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Start tracking your business finances by adding your first transaction.
+              </p>
+              <div className="flex items-center justify-center space-x-2 text-sm text-blue-600">
+                <Plus className="h-4 w-4" />
+                <span>Use the "Add Transaction" tab to get started</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
@@ -117,53 +146,57 @@ export const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Income vs Expenses (Last 30 Days)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="income" fill="#10B981" />
-                <Bar dataKey="expenses" fill="#EF4444" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Charts - only show if there are transactions */}
+      {transactions.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Income vs Expenses (Last 30 Days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="income" fill="#10B981" />
+                  <Bar dataKey="expenses" fill="#EF4444" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Expense Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+          {categoryData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Expense Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* Recent Transactions */}
       <Card>
@@ -173,7 +206,10 @@ export const Dashboard: React.FC = () => {
         <CardContent>
           <div className="space-y-4">
             {recentTransactions.length === 0 ? (
-              <p className="text-muted-foreground">No recent transactions</p>
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-2">No recent transactions</p>
+                <p className="text-sm text-gray-500">Add your first transaction to get started!</p>
+              </div>
             ) : (
               recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between p-3 border rounded">
