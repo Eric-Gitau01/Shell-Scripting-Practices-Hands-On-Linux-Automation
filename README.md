@@ -1,73 +1,83 @@
-# Welcome to your Lovable project
+# ShopTrack - Small Business Income/Expense Tracker
 
-## Project info
+ShopTrack is a lightweight web application designed to help small business owners easily track their income and expenses in real-time, with voice and photo input capabilities.
 
-**URL**: https://lovable.dev/projects/ebfd51df-f46d-4b18-ab67-18d4f57f8541
+## Features
 
-## How can I edit this code?
+- 📱 Mobile-first responsive design
+- 🎤 Voice input for quick transaction logging
+- 📸 Photo receipt capture
+- 📊 Real-time profit/loss dashboard
+- 🔄 Offline support with local storage + Supabase sync
+- 📈 Visual financial charts
+- 🌓 Dark/light mode
 
-There are several ways of editing your application.
+## Technologies Used
 
-**Use Lovable**
+- Next.js 14
+- Supabase (Authentication + Database)
+- Web Speech API (Voice input)
+- Tailwind CSS
+- Local Storage (Offline support)
+- PWA Capabilities
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ebfd51df-f46d-4b18-ab67-18d4f57f8541) and start prompting.
+## Prompt Used with Lovable.ai
 
-Changes made via Lovable will be committed automatically to this repo.
+```markdown
+Create a fullstack web application called "ShopTrack" for small business owners to track income and expenses in real-time using Next.js, Supabase, and local storage as a fallback. The app should have:
 
-**Use your preferred IDE**
+1. Core Features:
+   - Voice input for quick transaction logging (using Web Speech API)
+   - Photo receipt capture (using device camera)
+   - Simple income/expense categorization
+   - Real-time profit/loss dashboard
+   - Local storage synchronization with Supabase backend
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. UI Requirements:
+   - Mobile-first responsive design
+   - Clean, intuitive interface with minimal form fields
+   - Visual charts for financial overview
+   - Dark/light mode toggle
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. Technical Specifications:
+   - Next.js 14 frontend
+   - Supabase for:
+     - User authentication
+     - Data persistence
+     - Real-time updates
+   - Local storage fallback for offline functionality
+   - Service worker for PWA capabilities
+   - Zod for form validation
+   - Tailwind CSS for styling
 
-Follow these steps:
+4. AI Integration Points:
+   - Voice-to-text transaction logging
+   - Receipt image text extraction
+   - Smart transaction categorization
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+5. Data Structure:
+   - Users table (id, email, name)
+   - Transactions table (id, user_id, amount, type, category, date, notes)
+   - Categories table (id, name, color)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+6. Special Considerations:
+   - Offline-first approach
+   - Data sync when connection restored
+   - Simple onboarding flow
+   - Export to CSV functionality
 ```
 
-**Edit a file directly in GitHub**
+## Installation
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up Supabase environment variables
+4. Run the development server: `npm run dev`
 
-**Use GitHub Codespaces**
+## How It Addresses the Hackathon Problem
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/ebfd51df-f46d-4b18-ab67-18d4f57f8541) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+ShopTrack solves the challenge of small traders who don't track their income or expenses by providing:
+- Simple, intuitive tracking tools
+- Multiple input methods (voice/photo/manual)
+- Instant financial insights
+- Offline functionality for areas with poor connectivity
